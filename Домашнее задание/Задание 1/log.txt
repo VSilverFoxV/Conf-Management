@@ -1,0 +1,17 @@
+[
+    {
+        "timestamp": "2024-09-29 16:57:14",
+        "user": "master",
+        "command": "cal"
+    },
+    {
+        "timestamp": "2024-09-29 16:57:14",
+        "user": "master",
+        "command": "who"
+    },
+    {
+        "timestamp": "2024-09-29 16:57:28",
+        "user": "master",
+        "command": "exit"
+    }
+]
