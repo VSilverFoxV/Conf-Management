@@ -1,151 +1,159 @@
-import zipfile
-import sys
-import json
-import argparse
-import calendar
-import time
-from datetime import datetime
+import zipfile  
+import sys  # Импорт модуля для работы с системными функциями и завершения программы
+import json  
+import argparse  # Импорт модуля для обработки аргументов командной строки
+import calendar  # Импорт модуля для работы с календарями
+import time  # Импорт модуля для работы с временем
+from datetime import datetime  
 
 class ShellEmulator:
     def __init__(self, zip_path, log_path, username, hostname, startup_script):
-        self.zip_path = zip_path
-        self.log_path = log_path
-        self.username = username
-        self.hostname = hostname
-        self.current_dir = ""  # Начинаем в корне архива
-        self.startup_script = startup_script
-        self.log_data = []
-        self.files = {}  # Словарь файлов: путь -> содержимое
-        self.unzip_files()
-        self.load_startup_script()
+        # Инициализатор класса. Принимает путь к zip-архиву, лог-файлу, имя пользователя, имя компьютера и стартовый скрипт
+        self.zip_path = zip_path  # Путь к zip-архиву файловой системы
+        self.log_path = log_path  # Путь к лог-файлу
+        self.username = username  # Имя пользователя
+        self.hostname = hostname  # Имя компьютера (хоста)
+        self.current_dir = ""  # Текущая директория, изначально корневая
+        self.startup_script = startup_script  # Путь к стартовому скрипту внутри архива
+        self.log_data = []  # Список для хранения логов действий пользователя
+        self.files = {}  # Словарь для хранения файлов из архива: путь -> содержимое
+        self.unzip_files()  # Вызов функции для распаковки файлов из архива
+        self.load_startup_script()  # Вызов функции для выполнения команд из стартового скрипта
 
     def unzip_files(self):
-        with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-            for file_info in zip_ref.infolist():
-                if not file_info.is_dir():
-                    with zip_ref.open(file_info) as file:
-                        self.files[file_info.filename] = file.read()
+        # Функция для распаковки файлов из zip-архива.
+        with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:  # Открываем zip-архив для чтения
+            for file_info in zip_ref.infolist():  # Проходим по всем файлам и директориям в архиве
+                if not file_info.is_dir():  # Если это не директория
+                    with zip_ref.open(file_info) as file:  # Открываем файл
+                        self.files[file_info.filename] = file.read()  # Читаем содержимое файла и сохраняем в словарь
 
     def log_action(self, command):
+        # Функция для логирования действий пользователя
         log_entry = {
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'user': self.username,
-            'command': command
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),  # Текущая дата и время
+            'user': self.username,  # Имя пользователя
+            'command': command  # Выполненная команда
         }
-        self.log_data.append(log_entry)
-        with open(self.log_path, 'w', encoding='utf-8') as log_file:
-            json.dump(self.log_data, log_file, indent=4, ensure_ascii=False)
+        self.log_data.append(log_entry)  # Добавляем запись в список логов
+        with open(self.log_path, 'w', encoding='utf-8') as log_file:  # Открываем лог-файл для записи
+            json.dump(self.log_data, log_file, indent=4, ensure_ascii=False)  # Записываем логи в файл в формате JSON
 
     def load_startup_script(self):
-        if self.startup_script:
-            script_path = self.startup_script
-            if script_path in self.files:
+        # Функция для загрузки и выполнения команд из стартового скрипта
+        if self.startup_script:  # Если путь к стартовому скрипту указан
+            script_path = self.startup_script  # Запоминаем путь к скрипту
+            if script_path in self.files:  # Если скрипт найден в архиве
                 try:
-                    script_content = self.files[script_path].decode('utf-8')
-                    for line in script_content.splitlines():
+                    script_content = self.files[script_path].decode('utf-8')  # Декодируем содержимое скрипта в строку
+                    for line in script_content.splitlines():  # Разбиваем содержимое на строки
                         if line.strip():  # Пропускаем пустые строки
-                            print(f"Выполнение команды из скрипта: {line.strip()}")
-                            result = self.execute_command(line.strip())
-                            if result:  # Выводим результат выполнения команды
-                                print(result)
+                            print(f"Выполнение команды из скрипта: {line.strip()}")  # Печатаем команду
+                            result = self.execute_command(line.strip())  # Выполняем команду
+                            if result:  # Если есть результат выполнения команды
+                                print(result)  # Печатаем результат
                 except UnicodeDecodeError:
-                    print(f"Ошибка декодирования файла скрипта: {script_path}")
+                    print(f"Ошибка декодирования файла скрипта: {script_path}")  # Обрабатываем ошибку декодирования
             else:
-                print(f"Стартовый скрипт {script_path} не найден в архиве.")
-
+                print(f"Стартовый скрипт {script_path} не найден в архиве.")  # Если скрипт не найден в архиве
 
     def execute_command(self, command):
+        # Функция для выполнения команд, введенных пользователем
         if command.startswith("ls"):
-            result = self.ls()
+            result = self.ls()  # Выполняем команду 'ls'
         elif command.startswith("cd"):
             parts = command.split(" ", 1)
             if len(parts) > 1:
-                directory = parts[1]
-                result = self.cd(directory)
+                directory = parts[1]  # Получаем директорию для команды 'cd'
+                result = self.cd(directory)  # Выполняем команду 'cd'
             else:
-                result = "Ошибка: не указана директория."
+                result = "Ошибка: не указана директория."  # Ошибка, если директория не указана
         elif command.startswith("cal"):
-            result = self.cal()
+            result = self.cal()  # Выполняем команду 'cal'
         elif command.startswith("clear"):
-            result = self.clear()
+            result = self.clear()  # Выполняем команду 'clear'
         elif command.startswith("who"):
-            result = self.who()
+            result = self.who()  # Выполняем команду 'who'
         elif command.startswith("exit"):
-            result = self.exit()
+            result = self.exit()  # Выполняем команду 'exit'
         else:
-            result = "Команда не найдена"
+            result = "Команда не найдена"  # Ошибка, если команда не распознана
         
-        self.log_action(command)
-        return result
+        self.log_action(command)  # Логируем выполненную команду
+        return result  # Возвращаем результат выполнения команды
 
     def ls(self):
-        # Возвращаем список файлов и директорий в текущей директории
-        prefix = self.current_dir + '/' if self.current_dir else ''
-        items = set()
-        for f in self.files:
-            if f.startswith(prefix):
-                remainder = f[len(prefix):]
+        # Функция для выполнения команды 'ls', выводит список файлов в текущей директории
+        prefix = self.current_dir + '/' if self.current_dir else ''  # Префикс для текущей директории
+        items = set()  # Множество для хранения файлов и директорий
+        for f in self.files:  # Проходим по всем файлам в архиве
+            if f.startswith(prefix):  # Если файл находится в текущей директории
+                remainder = f[len(prefix):]  # Оставшаяся часть пути
                 if '/' in remainder:
-                    items.add(remainder.split('/', 1)[0] + '/')
+                    items.add(remainder.split('/', 1)[0] + '/')  # Добавляем директории
                 else:
-                    items.add(remainder)
-        return '\n'.join(sorted(items))
+                    items.add(remainder)  # Добавляем файлы
+        return '\n'.join(sorted(items))  # Возвращаем отсортированный список файлов и директорий.
 
     def cd(self, directory):
-        if directory == "..":
-            if self.current_dir:
-                self.current_dir = '/'.join(self.current_dir.split('/')[:-1])
-            return f"Перешли в директорию: {self.current_dir if self.current_dir else '/'}"
+        # Функция для выполнения команды 'cd', меняет текущую директорию
+        if directory == "..":  # Если команда 'cd ..', переходим на уровень выше
+            if self.current_dir:  # Если не находимся в корне
+                self.current_dir = '/'.join(self.current_dir.split('/')[:-1])  # Переходим в родительскую директорию
+            return f"Перешли в директорию: {self.current_dir if self.current_dir else '/'}"  # Возвращаем сообщение о переходе
 
-        new_dir = f"{self.current_dir}/{directory}" if self.current_dir else directory
-        prefix = new_dir + '/'
-        if any(f.startswith(prefix) for f in self.files):
-            self.current_dir = new_dir
-            return f"Перешли в директорию: {self.current_dir}"
+        new_dir = f"{self.current_dir}/{directory}" if self.current_dir else directory  # Определяем новую директорию
+        prefix = new_dir + '/'  # Префикс для проверки наличия директории
+        if any(f.startswith(prefix) for f in self.files):  # Проверяем, существует ли директория
+            self.current_dir = new_dir  # Меняем текущую директорию
+            return f"Перешли в директорию: {self.current_dir}"  # Возвращаем сообщение о переходе
         else:
-            return "Ошибка: Директория не найдена."
-    
+            return "Ошибка: Директория не найдена."  # Сообщение об ошибке, если директория не найдена
 
     def cal(self):
-        current_year = time.localtime().tm_year
-        current_month = time.localtime().tm_mon
-        return calendar.month(current_year, current_month)
+        # Функция для выполнения команды 'cal', выводит календарь текущего месяца
+        current_year = time.localtime().tm_year  # Получаем текущий год
+        current_month = time.localtime().tm_mon  # Получаем текущий месяц
+        return calendar.month(current_year, current_month)  # Возвращаем календарь
 
     def clear(self):
-        # Эмуляция очистки экрана
-        return "\033[H\033[J"
+        # Функция для выполнения команды 'clear', эмулирует очистку экрана
+        return "\033[H\033[J"  # Возвращаем управляющие символы для очистки экрана в терминале
 
     def who(self):
-        return f"Текущий пользователь: {self.username}"
+        # Функция для выполнения команды 'who', выводит имя текущего пользователя
+        return f"Текущий пользователь: {self.username}"  # Возвращаем имя пользователя
 
     def exit(self):
-        print("Выход из эмулятора.")
-        self.log_action("exit")
-        sys.exit()
+        # Функция для выполнения команды 'exit', завершает программу
+        print("Выход из эмулятора.")  # Печатаем сообщение о выходе
+        self.log_action("exit")  # Логируем команду выхода
+        sys.exit()  # Завершаем выполнение программы
 
     def run(self):
+        # Основная функция, которая запускает цикл обработки команд
         try:
             while True:
-                prompt_dir = self.current_dir if self.current_dir else "/"
-                command = input(f"{self.username}@{self.hostname}:{prompt_dir}$ ")
-                output = self.execute_command(command)
+                prompt_dir = self.current_dir if self.current_dir else "/"  # Определяем строку с текущей директорией
+                command = input(f"{self.username}@{self.hostname}:{prompt_dir}$ ")  # Получаем команду от пользователя
+                output = self.execute_command(command)  # Выполняем команду
                 if output:
-                    print(output)
+                    print(output)  # Если есть результат, выводим его на экран
         except KeyboardInterrupt:
-            print("\nВыход из эмулятора.")
-            sys.exit()
+            print("\nВыход из эмулятора.")  # Обрабатываем прерывание программы (Ctrl+C)
+            sys.exit()  # Завершаем выполнение программы
 
 def main():
-    parser = argparse.ArgumentParser(description='Shell Emulator')
-    parser.add_argument('--user', required=True, help='Имя пользователя')
-    parser.add_argument('--host', required=True, help='Имя компьютера')
-    parser.add_argument('--zip', required=True, help='Путь к архиву файловой системы')
-    parser.add_argument('--log', required=True, help='Путь к лог-файлу')
-    parser.add_argument('--script', required=False, help='Путь к стартовому скрипту внутри архива')
-
-    args = parser.parse_args()
-    emulator = ShellEmulator(args.zip, args.log, args.user, args.host, args.script)
-    emulator.run()
+    # Функция для обработки аргументов командной строки и запуска эмулятора.
+    parser = argparse.ArgumentParser(description='Shell Emulator')  # Создаем парсер аргументов командной строки
+    parser.add_argument('--user', required=True, help='Имя пользователя')  # Аргумент для имени пользователя
+    parser.add_argument('--host', required=True, help='Имя компьютера')  # Аргумент для имени компьютера
+    parser.add_argument('--zip', required=True, help='Путь к архиву файловой системы')  # Аргумент для пути к zip-архиву
+    parser.add_argument('--log', required=True, help='Путь к лог-файлу')  # Аргумент для пути к лог-файлу
+    parser.add_argument('--script', required=False, help='Путь к стартовому скрипту внутри архива')  # Аргумент для пути к стартовому скрипту
+    args = parser.parse_args()  # Парсим аргументы командной строки.
+    emulator = ShellEmulator(args.zip, args.log, args.user, args.host, args.script)  # Создаем объект ShellEmulator
+    emulator.run()  # Запускаем эмулятор
 
 if __name__ == "__main__":
-    main()
+    main()  # Если скрипт запущен напрямую, вызываем функцию main()
