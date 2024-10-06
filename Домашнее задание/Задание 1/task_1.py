@@ -27,20 +27,24 @@ class ShellEmulator:
                 if not file_info.is_dir():  # Если это не директория
                     with zip_ref.open(file_info) as file:  # Открываем файл
                         self.files[file_info.filename] = file.read()  # Читаем содержимое файла и сохраняем в словарь
+        return self.files  # Возвращаем распакованные файлы для проверки
 
-    def log_action(self, command):
+    def log_action(self, command, output):
         # Функция для логирования действий пользователя
         log_entry = {
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),  # Текущая дата и время
             'user': self.username,  # Имя пользователя
-            'command': command  # Выполненная команда
+            'command': command,  # Выполненная команда
+            'output': output   # Результат деятельности ф-ии
         }
         self.log_data.append(log_entry)  # Добавляем запись в список логов
         with open(self.log_path, 'w', encoding='utf-8') as log_file:  # Открываем лог-файл для записи
             json.dump(self.log_data, log_file, indent=4, ensure_ascii=False)  # Записываем логи в файл в формате JSON
+        return log_entry  # Возвращаем запись лога для проверки
 
     def load_startup_script(self):
         # Функция для загрузки и выполнения команд из стартового скрипта
+        results = []  # Список для хранения результатов выполнения команд
         if self.startup_script:  # Если путь к стартовому скрипту указан
             script_path = self.startup_script  # Запоминаем путь к скрипту
             if script_path in self.files:  # Если скрипт найден в архиве
@@ -50,12 +54,16 @@ class ShellEmulator:
                         if line.strip():  # Пропускаем пустые строки
                             print(f"Выполнение команды из скрипта: {line.strip()}")  # Печатаем команду
                             result = self.execute_command(line.strip())  # Выполняем команду
+                            results.append((line.strip(), result))  # Добавляем команду и результат в список
                             if result:  # Если есть результат выполнения команды
                                 print(result)  # Печатаем результат
                 except UnicodeDecodeError:
+                    results.append((script_path, "Ошибка декодирования"))
                     print(f"Ошибка декодирования файла скрипта: {script_path}")  # Обрабатываем ошибку декодирования
             else:
+                results.append((script_path, "Стартовый скрипт не найден в архиве."))
                 print(f"Стартовый скрипт {script_path} не найден в архиве.")  # Если скрипт не найден в архиве
+        return results  # Возвращаем результаты выполнения скрипта
 
     def execute_command(self, command):
         # Функция для выполнения команд, введенных пользователем
@@ -83,7 +91,7 @@ class ShellEmulator:
         else:
             result = "Команда не найдена"  # Ошибка, если команда не распознана
         
-        self.log_action(command)  # Логируем выполненную команду
+        self.log_action(command, result)  # Логируем выполненную команду
         return result  # Возвращаем результат выполнения команды
 
     def ls(self, directory=None):
@@ -134,7 +142,7 @@ class ShellEmulator:
     def exit(self):
         # Функция для выполнения команды 'exit', завершает программу
         print("Выход из эмулятора.")  # Печатаем сообщение о выходе
-        self.log_action("exit")  # Логируем команду выхода
+        self.log_action("exit", "Выход из эмулятора.")  # Логируем команду выхода
         sys.exit()  # Завершаем выполнение программы
 
     def run(self):
@@ -148,6 +156,7 @@ class ShellEmulator:
                     print(output)  # Если есть результат, выводим его на экран
         except KeyboardInterrupt:
             print("\nВыход из эмулятора.")  # Обрабатываем прерывание программы (Ctrl+C)
+            self.log_action("exit (Ctrl+C)", "Выход из эмулятора.")  # Логируем команду выхода (Ctrl+C)
             sys.exit()  # Завершаем выполнение программы
 
 def main():

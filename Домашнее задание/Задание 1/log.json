@@ -1,0 +1,20 @@
+[
+    {
+        "timestamp": "2024-10-07 01:30:15",
+        "user": "master",
+        "command": "cal",
+        "output": "    October 2024\nMo Tu We Th Fr Sa Su\n    1  2  3  4  5  6\n 7  8  9 10 11 12 13\n14 15 16 17 18 19 20\n21 22 23 24 25 26 27\n28 29 30 31\n"
+    },
+    {
+        "timestamp": "2024-10-07 01:30:15",
+        "user": "master",
+        "command": "who",
+        "output": "Текущий пользователь: master"
+    },
+    {
+        "timestamp": "2024-10-07 01:30:17",
+        "user": "master",
+        "command": "exit (Ctrl+C)",
+        "output": "Выход из эмулятора."
+    }
+]
