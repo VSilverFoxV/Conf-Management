@@ -1,20 +1,50 @@
 [
     {
-        "timestamp": "2024-10-07 01:30:15",
+        "timestamp": "2024-10-07 02:18:13",
         "user": "master",
         "command": "cal",
         "output": "    October 2024\nMo Tu We Th Fr Sa Su\n    1  2  3  4  5  6\n 7  8  9 10 11 12 13\n14 15 16 17 18 19 20\n21 22 23 24 25 26 27\n28 29 30 31\n"
     },
     {
-        "timestamp": "2024-10-07 01:30:15",
+        "timestamp": "2024-10-07 02:18:13",
         "user": "master",
         "command": "who",
         "output": "Текущий пользователь: master"
     },
     {
-        "timestamp": "2024-10-07 01:30:17",
+        "timestamp": "2024-10-07 02:18:40",
         "user": "master",
-        "command": "exit (Ctrl+C)",
+        "command": "ls",
+        "output": "Texts/\nstartup.txt"
+    },
+    {
+        "timestamp": "2024-10-07 02:19:06",
+        "user": "master",
+        "command": "ls Texts",
+        "output": "file1.txt\nfile2.txt"
+    },
+    {
+        "timestamp": "2024-10-07 02:19:26",
+        "user": "master",
+        "command": "cd Texts",
+        "output": "Перешли в директорию: Texts"
+    },
+    {
+        "timestamp": "2024-10-07 02:19:29",
+        "user": "master",
+        "command": "cd Texts",
+        "output": "Ошибка: Директория не найдена."
+    },
+    {
+        "timestamp": "2024-10-07 02:19:31",
+        "user": "master",
+        "command": "csgfesrgsr",
+        "output": "Команда не найдена"
+    },
+    {
+        "timestamp": "2024-10-07 02:19:35",
+        "user": "master",
+        "command": "exit",
         "output": "Выход из эмулятора."
     }
 ]
