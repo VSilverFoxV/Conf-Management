@@ -1,42 +1,37 @@
 [
     {
-        "timestamp": "2024-10-03 18:57:22",
+        "timestamp": "2024-10-06 22:50:46",
         "user": "master",
         "command": "cal"
     },
     {
-        "timestamp": "2024-10-03 18:57:22",
+        "timestamp": "2024-10-06 22:50:46",
         "user": "master",
         "command": "who"
     },
     {
-        "timestamp": "2024-10-03 18:58:20",
-        "user": "master",
-        "command": "ls"
-    },
-    {
-        "timestamp": "2024-10-03 18:58:47",
-        "user": "master",
-        "command": "cd Texts"
-    },
-    {
-        "timestamp": "2024-10-03 19:01:14",
-        "user": "master",
-        "command": "cd .."
-    },
-    {
-        "timestamp": "2024-10-03 19:01:27",
+        "timestamp": "2024-10-06 22:50:58",
         "user": "master",
         "command": "ls Texts"
     },
     {
-        "timestamp": "2024-10-03 19:02:02",
-        "user": "master",
-        "command": "ls Texts/"
-    },
-    {
-        "timestamp": "2024-10-03 19:02:06",
+        "timestamp": "2024-10-06 22:51:02",
         "user": "master",
         "command": "ls"
+    },
+    {
+        "timestamp": "2024-10-06 22:51:19",
+        "user": "master",
+        "command": "ls startup.txt"
+    },
+    {
+        "timestamp": "2024-10-06 22:51:24",
+        "user": "master",
+        "command": "ls Texts"
+    },
+    {
+        "timestamp": "2024-10-06 22:51:27",
+        "user": "master",
+        "command": "exit"
     }
 ]

@@ -60,7 +60,11 @@ class ShellEmulator:
     def execute_command(self, command):
         # Функция для выполнения команд, введенных пользователем
         if command.startswith("ls"):
-            result = self.ls()  # Выполняем команду 'ls'
+            parts = command.split(" ", 1)
+            if len(parts) > 1:
+                result = self.ls(parts[1].strip())  # Передаем аргумент в ls
+            else:
+                result = self.ls()  # Вызываем без аргумента
         elif command.startswith("cd"):
             parts = command.split(" ", 1)
             if len(parts) > 1:
@@ -82,12 +86,15 @@ class ShellEmulator:
         self.log_action(command)  # Логируем выполненную команду
         return result  # Возвращаем результат выполнения команды
 
-    def ls(self):
+    def ls(self, directory=None):
         # Функция для выполнения команды 'ls', выводит список файлов в текущей директории
         prefix = self.current_dir + '/' if self.current_dir else ''  # Префикс для текущей директории
+        if directory:
+            # Если передан аргумент directory, добавляем его к текущей директории
+            prefix += directory + '/' if not directory.endswith('/') else directory
         items = set()  # Множество для хранения файлов и директорий
         for f in self.files:  # Проходим по всем файлам в архиве
-            if f.startswith(prefix):  # Если файл находится в текущей директории
+            if f.startswith(prefix):  # Если файл находится в указанной директории
                 remainder = f[len(prefix):]  # Оставшаяся часть пути
                 if '/' in remainder:
                     items.add(remainder.split('/', 1)[0] + '/')  # Добавляем директории
