@@ -36,3 +36,30 @@ def build_graphviz(deps):
     graphviz_code += '}\n'
     return graphviz_code
 
+def main():
+    if len(sys.argv) != 3:
+        print("Использование: python task_2.py <package_name> <output_path>")
+        sys.exit(1)
+    
+    package_name = sys.argv[1]  # Имя пакета
+    output_path = sys.argv[2]  # Путь к файлу для записи результатов
+    
+    # Получаем зависимости для указанного пакета
+    dependencies = fetch_apk_dependencies(package_name)
+    
+    if not dependencies:
+        print(f"Не удалось найти зависимости для пакета {package_name}")
+        sys.exit(1)
+    
+    # Строим Graphviz диаграмму
+    graphviz_code = build_graphviz(dependencies)
+    
+    # Сохраняем результат в указанный файл
+    with open(output_path, 'w', encoding='utf-8') as file:
+        file.write(graphviz_code)
+
+    print(f"Graphviz код сохранён в {output_path}")
+    print(graphviz_code)
+
+if __name__ == "__main__":
+    main()
