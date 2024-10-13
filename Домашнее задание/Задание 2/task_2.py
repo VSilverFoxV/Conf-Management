@@ -1,3 +1,4 @@
+import sys
 import requests
 from bs4 import BeautifulSoup
 
@@ -20,4 +21,18 @@ def fetch_apk_dependencies(package_name: str):
             deps += fetch_apk_dependencies(next_package)  # Рекурсивный вызов для получения транзитивных зависимостей
     
     return deps
+
+def build_graphviz(deps):
+    """Формирование Graphviz диаграммы."""
+    graphviz_code = 'digraph G {\n'
+    added_links = set()
+    
+    for src, dest in deps:
+        link = f'"{src}" -> "{dest}"'
+        if link not in added_links:
+            graphviz_code += f'  {link};\n'
+            added_links.add(link)
+    
+    graphviz_code += '}\n'
+    return graphviz_code
 
