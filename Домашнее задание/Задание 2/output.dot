@@ -1,0 +1,17 @@
+digraph G {
+  "curl" -> "libcurl";
+  "libcurl" -> "ca-certificates-bundle";
+  "libcurl" -> "so:libbrotlidec.so.1";
+  "libcurl" -> "so:libc.musl-x86_64.so.1";
+  "libcurl" -> "so:libcares.so.2";
+  "libcurl" -> "so:libcrypto.so.3";
+  "libcurl" -> "so:libidn2.so.0";
+  "libcurl" -> "so:libnghttp2.so.14";
+  "libcurl" -> "so:libpsl.so.5";
+  "libcurl" -> "so:libssl.so.3";
+  "libcurl" -> "so:libz.so.1";
+  "libcurl" -> "so:libzstd.so.1";
+  "curl" -> "so:libc.musl-x86_64.so.1";
+  "curl" -> "so:libcurl.so.4";
+  "curl" -> "so:libz.so.1";
+}
