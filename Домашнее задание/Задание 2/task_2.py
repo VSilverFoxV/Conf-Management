@@ -98,9 +98,6 @@ def main():
         
         file.write(graphviz_code)  
         # Записываем код Graphviz в файл.
-
-    print(f"Graphviz код сохранён в {output_path}")  
-    # Выводим сообщение о том, что код сохранён.
     
     print(graphviz_code)  
    
