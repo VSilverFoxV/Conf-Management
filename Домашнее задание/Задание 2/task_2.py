@@ -1,4 +1,4 @@
-import sys  
+import sys, os
 import requests  # Импортируем модуль requests для выполнения HTTP-запросов к веб-сайтам.
 from bs4 import BeautifulSoup  # Импортируем BeautifulSoup из библиотеки bs4 для парсинга HTML-страниц.
 
@@ -67,16 +67,17 @@ def build_graphviz(deps):
     return graphviz_code  # Возвращаем строку с кодом Graphviz.
 
 def main():
-    if len(sys.argv) != 3:  
-        # Проверяем, что было передано ровно два аргумента: имя пакета и путь к файлу.
+    if len(sys.argv) != 4:  
+        # Проверяем, что было передано ровно три аргумента: путь к программе для визуализации графов имя пакета и путь к файлу для записи результатов.
         
-        print("Использование: python task_2.py <package_name> <output_path>")  
+        print("Использование: python task_2.py <visualizer_path> <package_name> <output_path>")  
         
         sys.exit(1)  
         # Завершаем выполнение программы с ошибкой.
 
-    package_name = sys.argv[1]  # Первый аргумент — это имя пакета.
-    output_path = sys.argv[2]  # Второй аргумент — это путь к файлу для записи результатов.
+    visializer_path = sys.argv[1]  # Первый аргумент — путь к программе для визуализации графов.
+    package_name = sys.argv[2]  # Второй аргумент — имя пакета.
+    output_path = sys.argv[3]  # Третий аргумент — путь к файлу для записи результатов.
 
     # Получаем зависимости для указанного пакета
     dependencies = fetch_apk_dependencies(package_name)  
@@ -91,7 +92,6 @@ def main():
     # Строим Graphviz диаграмму
     graphviz_code = build_graphviz(dependencies)  
     
-
     # Сохраняем результат в указанный файл
     with open(output_path, 'w', encoding='utf-8') as file:  
         # Открываем файл для записи с указанным путём и кодировкой UTF-8.
@@ -100,6 +100,11 @@ def main():
         # Записываем код Graphviz в файл.
     
     print(graphviz_code)  
+
+    # Инъекция в командную строку того, что написано, как аргумент у os.system()
+    # Если   py task_2.py dot curl output.dot   то:
+    # "dot" -Tsvg output.dot > output.svg
+    os.system(f"\"{visializer_path}\" -Tsvg {output_path} > {output_path.split(".")[0] + ".svg"}")
    
 
 if __name__ == "__main__":
