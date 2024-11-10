@@ -1,9 +1,10 @@
 from peco.peco import *
 
-# Обработка чисел
+# Обработка чисел, массивов, объектов (словарей) и строк
 mknum = to(lambda n: float(n))
 mkarr = to(lambda a: list(a))
 mkobj = to(lambda o: dict(o))
+mkstr = to(lambda s: str(s))
 
 # Обработка лишних пробелов, включая обработку комментариев
 ws = many(eat(r'\s+'))
@@ -28,9 +29,11 @@ item = group(seq(name, skip(r'=>'), val))
 
 const = group(seq(name, skip(r'='), val))
 
-obj = seq(skip(r'\['), group(many(seq(item, skip(r',')))), skip(r'\]'), mkobj)
+obj = seq(skip(r'{'), group(many(seq(item, skip(r',')))), skip(r'}'), mkobj)
 
-val = alt(num, array, obj)
+string = seq(skip(r'@\"'), tok(r'[^"]*'), skip(r'\"'), mkstr)
+
+val = alt(num, string, array, obj)
 
 main = seq(group(many(const)), ws, mkobj)
 
@@ -38,10 +41,11 @@ def test():
     src = '''
     a = 8
     b = (list 1 2 3 4 5)
-    vm = [
+    vm = {
         IP => (list 192 168 44 44),
         memory => 1024,
-    ]
+    }
+    str = @"ASS"
     '''
     s = parse(src, main)
     print(s.ok)
