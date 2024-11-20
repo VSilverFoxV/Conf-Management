@@ -1,3 +1,6 @@
+import argparse
+import sys
+import yaml
 from peco.peco import *
 
 # Глобальный словарь для хранения значений переменных
@@ -73,21 +76,36 @@ val = alt(num, string, array, obj, constExpr)
 # Точка входа в программу обработки
 main = seq(group(many(const)), ws, mkobj)
 
-# Временная фун-я для теста
-def test():
-    # Строка для тестирования
-    src = '''
-    a = 8
-    b = (list 1 #[a] 3 4 5)
-    vm = {
-        IP => (list 192 168 #[b] 44),
-        memory => 1024,
-    }
-    str = @"Цветочки"
-    test = #[str]
-    '''
-    s = parse(src, main) # результат парсинга через `peco`
-    print(s.ok) # Всё ли окей
-    print(s.stack) # Вывод стека того, что было обработано
+# Кастомный Dumper, чтобы отключить оптимизацию с использованием якорей (ссылок (наподобие &id001)) и явно повторять данные в YAML-коде
+class NoAliasDumper(yaml.Dumper):
+    def ignore_aliases(self, data):
+        return True
 
-test()
+# Функция для загрузки и парсинга конфигурационного файла
+def parse_file(file_path):
+    try:
+        src = sys.stdin.read()  # Стандартный ввод с консоли
+        s = parse(src, main)  # Стек
+        output = ""  # Переменная с выходными данными
+        if s.ok:
+            result_dict = dict(s.stack[0]) if isinstance(s.stack, tuple) else s.stack  # Преобразование стека (результат работы парсера) к типу "dict" (словарь)
+            yaml_output = yaml.dump(result_dict, default_flow_style=False, allow_unicode=True, default_style=None, Dumper=NoAliasDumper)  # Преобразование преобразованного стека в YAML-код
+            output = "\n" + yaml_output + "\n"
+        else:
+            output = "Парсинг не удался."
+            print(output)
+        with open(file_path, 'w', encoding='utf-8') as f:  # Запись результата парсинга и преобразований в выходной файл
+            f.write(output)
+    except FileNotFoundError:  # Если пути к файлу не существует
+        print(f"Ошибка: Файла '{file_path}' не существует.")
+    except Exception as e:  # Отлов остальных ошибок
+        print(f"В процессе парсинга возникла ошибка: {e}")
+
+# Точка входа в скрипт
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Программа парсинга конфигурационного языка.")
+    parser.add_argument("outputFilePath", help="Путь к файлу-результату парсинга конфигурационного языка.")
+    args = parser.parse_args()
+    
+    # Запуск парсинга файла (ф-ии для загрузки и парсинга конфигурационного файла)
+    parse_file(args.outputFilePath)
